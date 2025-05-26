@@ -1,0 +1,41 @@
+[
+  {
+    "channelName": "Artem Kirsanov",
+    "videoIds": [
+      "ceFFEmkxTLg",
+      "l-OLgbdZ3kk",
+      "iV-EMA5g288",
+      "SmZmBKc7Lrs",
+      "1WPJdAW-sFo",
+      "iPj9D9LgK2A"
+    ],
+    "notePrompts": [
+      "1️⃣ Key Concept Explained",
+      "2️⃣ Visual/Animation Technique",
+      "3️⃣ Simulation Logic Step",
+      "4️⃣ Tools/Technologies Mentioned",
+      "5️⃣ Questions or Doubts",
+      "6️⃣ Ideas for My Projects"
+    ],
+    "googleForm": {
+      "action": "https://docs.google.com/forms/d/e/1FAIpQLSdb93OkiuceAUfCObXcDgsrH88NfjEY3JkG5AsInWvZidqrLw/formResponse",
+      "entry": "entry.1319447145"
+    }
+  },
+  {
+    "channelName": "Default Channel",
+    "videoIds": [],
+    "notePrompts": [
+      "🔍 What is this about?",
+      "💡 Key Idea Observed",
+      "🛠️ Techniques / Tools Used",
+      "🧪 Simulation Flow",
+      "🧠 How Would You Build It?",
+      "✍️ Quick Thoughts"
+    ],
+    "googleForm": {
+      "action": "https://docs.google.com/forms/d/e/1FAIpQLSdi0Oi95_BekcHiEx_ImQhrgZfutmx21P1VtK2UU0qbCXAmPA/formResponse",
+      "entry": "entry.1849445170"
+    }
+  }
+]
