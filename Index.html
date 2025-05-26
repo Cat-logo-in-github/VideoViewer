@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Productive Video Index with +Channel</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
+    margin: 0; padding: 0;
+    color: #333;
+  }
+  header {
+    background: #007bff;
+    color: white;
+    padding: 1rem 2rem;
+  }
+  h1 {
+    margin: 0;
+  }
+  main {
+    padding: 2rem;
+  }
+  .channel-section {
+    margin-bottom: 2rem;
+  }
+  .channel-section h2 {
+    color: #007bff;
+    margin-bottom: 0.5rem;
+  }
+  .video-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .video-card {
+    width: 240px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .video-card:hover {
+    transform: scale(1.05);
+  }
+  .video-card img {
+    width: 100%;
+    display: block;
+  }
+  .video-card p {
+    padding: 0.5rem;
+    margin: 0;
+    font-size: 0.9rem;
+    text-align: center;
+    word-break: break-word;
+  }
+  #add-channel-btn {
+    margin: 1rem 2rem;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #add-channel-btn:hover {
+    background: #218838;
+  }
+
+  /* Modal styles */
+  #modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  #modal {
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  #modal h3 {
+    margin-top: 0;
+    color: #007bff;
+  }
+  #modal label {
+    display: block;
+    margin: 0.75rem 0 0.25rem 0;
+  }
+  #modal input[type="text"],
+  #modal textarea {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+  #modal textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  #modal-buttons {
+    margin-top: 1rem;
+    text-align: right;
+  }
+  #modal-buttons button {
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+  }
+  #submit-channel {
+    background: #007bff;
+    color: white;
+  }
+  #submit-channel:hover {
+    background: #0056b3;
+  }
+  #cancel-channel {
+    background: #6c757d;
+    color: white;
+  }
+  #cancel-channel:hover {
+    background: #5a6268;
+  }
+
+  #json-output {
+    white-space: pre-wrap;
+    background: #222;
+    color: #eee;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 2rem;
+    font-family: monospace;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎯 Focused Learning Dashboard</h1>
+</header>
+
+<button id="add-channel-btn">+ Channel</button>
+
+<main id="content">
+  <!-- Channels will be rendered here -->
+</main>
+
+<!-- Modal for adding a channel -->
+<div id="modal-overlay">
+  <div id="modal">
+    <h3>Add New Channel</h3>
+    <form id="channel-form">
+      <label for="channelName">Channel Name:</label>
+      <input type="text" id="channelName" name="channelName" required />
+
+      <label for="videoUrls">Video URLs (one per line):</label>
+      <textarea id="videoUrls" name="videoUrls" placeholder="https://youtube.com/watch?v=abc123" required></textarea>
+
+      <label for="noteQuestions">Note Questions (one per line):</label>
+      <textarea id="noteQuestions" name="noteQuestions" placeholder="Question 1\nQuestion 2" required></textarea>
+
+      <label for="formUrl">Google Form Submission URL (pre-filled):</label>
+      <input type="text" id="formUrl" name="formUrl" placeholder="https://docs.google.com/forms/d/e/..." required />
+
+      <div id="modal-buttons">
+        <button type="button" id="cancel-channel">Cancel</button>
+        <button type="submit" id="submit-channel">Add Channel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JSON Output area -->
+<pre id="json-output" style="display:none;"></pre>
+
+<script>
+  // Load existing channels.json
+  let channels = [];
+
+  async function loadChannels() {
+    try {
+      const res = await fetch('channels.json');
+      channels = await res.json();
+      renderChannels();
+    } catch (e) {
+      console.error('Failed to load channels.json', e);
+      document.getElementById('content').innerHTML = '<p>Error loading channels.json</p>';
+    }
+  }
+
+  // Render channels and videos
+  function renderChannels() {
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+    channels.forEach(channel => {
+      if (!channel.videoIds || channel.videoIds.length === 0) return;
+      const section = document.createElement('section');
+      section.className = 'channel-section';
+
+      const h2 = document.createElement('h2');
+      h2.textContent = channel.channelName;
+      section.appendChild(h2);
+
+      const grid = document.createElement('div');
+      grid.className = 'video-grid';
+
+      channel.videoIds.forEach(id => {
+        // Show video ID as title fallback
+        const card = document.createElement('a');
+        card.href = `watch.html?videoId=${id}`;
+        card.className = 'video-card';
+        card.title = id; // Tooltip with video ID
+        card.innerHTML = `
+          <img src="https://img.youtube.com/vi/${id}/mqdefault.jpg" alt="Video thumbnail" />
+          <p>${id}</p>
+        `;
+        grid.appendChild(card);
+      });
+
+      section.appendChild(grid);
+      content.appendChild(section);
+    });
+  }
+
+  // Modal handlers
+  const addBtn = document.getElementById('add-channel-btn');
+  const modalOverlay = document.getElementById('modal-overlay');
+  const cancelBtn = document.getElementById('cancel-channel');
+  const form = document.getElementById('channel-form');
+  const jsonOutput = document.getElementById('json-output');
+
+  addBtn.addEventListener('click', () => {
+    form.reset();
+    jsonOutput.style.display = 'none';
+    modalOverlay.style.display = 'flex';
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    modalOverlay.style.display = 'none';
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const channelName = form.channelName.value.trim();
+    const videoUrlsRaw = form.videoUrls.value.trim();
+    const noteQuestionsRaw = form.noteQuestions.value.trim();
+    const formUrl = form.formUrl.value.trim();
+
+    if (!channelName || !videoUrlsRaw || !noteQuestionsRaw || !formUrl) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    // Extract video IDs from URLs (simple regex)
+    const videoIds = videoUrlsRaw.split('\n')
+      .map(url => {
+        const match = url.match(/[?&]v=([^&]+)/);
+        return match ? match[1] : null;
+      })
+      .filter(id => id);
+
+    if (videoIds.length === 0) {
+      alert('No valid video IDs found in Video URLs.');
+      return;
+    }
+
+    // Split note questions by line
+    const noteQuestions = noteQuestionsRaw.split('\n').map(q => q.trim()).filter(q => q);
+
+    // New channel object
+    const newChannel = {
+      channelName,
+      videoIds,
+      noteQuestions,
+      formUrl
+    };
+
+    // Add new channel to in-memory array
+    channels.push(newChannel);
+
+    // Rerender UI with new channel
+    renderChannels();
+
+    // Show formatted updated JSON for copy-paste
+    jsonOutput.textContent = JSON.stringify(channels, null, 2);
+    jsonOutput.style.display = 'block';
+
+    // Close modal
+    modalOverlay.style.display = 'none';
+  });
+
+  // Initial load
+  loadChannels();
+</script>
+
+</body>
+</html>
