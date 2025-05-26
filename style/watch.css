@@ -1,0 +1,84 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f9f9f9;
+  color: #333;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.video-section {
+  flex: 3;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#ytPlayer {
+  width: 100%;
+  height: 100%;
+}
+
+.notes-section {
+  flex: 2;
+  padding: 2rem;
+  background: #fff;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.notes-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  font-weight: bold;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.note-field {
+  width: 100%;
+  height: 80px;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  background: #fdfdfd;
+  font-size: 1rem;
+  font-family: "Segoe UI", sans-serif;
+}
+
+#generateBtn {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+#generateBtn:hover {
+  background: #43a047;
+}
+
+#compiledNote {
+  margin-top: 1rem;
+  background: #f4f4f4;
+  padding: 1rem;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  font-family: monospace;
+  border: 1px solid #ddd;
+}
